@@ -4,6 +4,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart' as location;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled4/Utils/utils_class.dart';
 
 import '../Data Class/location.dart';
@@ -20,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Locations> _locationHistory = [];
   late location.Location _locationService;
   late Timer _timer;
+  late SharedPreferences _locationinfo;
   bool isMobile(BuildContext context) =>
       MediaQuery.of(context).size.width < 600;
 
@@ -28,6 +30,10 @@ class _MainScreenState extends State<MainScreen> {
     if (permissionStatus != PermissionStatus.granted) {
       await openAppSettings();
     }
+  }
+
+  Future<void> initSharedPreferences() async {
+    _locationinfo = await SharedPreferences.getInstance();
   }
 
   Future<void> conformationDialogBox() async {
@@ -114,6 +120,8 @@ class _MainScreenState extends State<MainScreen> {
 
   Future<void> _saveLocationData(location.LocationData? locationData) async {
     if (locationData != null) {
+      _locationinfo.setString('latitude', locationData.latitude.toString());
+      _locationinfo.setString('longitude', locationData.longitude.toString());
       Locations newLocation =
           Locations(lat: locationData.latitude!, lng: locationData.longitude!);
       _locationHistory.add(newLocation);
@@ -131,6 +139,7 @@ class _MainScreenState extends State<MainScreen> {
       onDismissActionReceivedMethod:
           NotificationController.onDismissActionReceivedMethod,
     );
+    initSharedPreferences();
     super.initState();
   }
 
