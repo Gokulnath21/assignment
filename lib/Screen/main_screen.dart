@@ -55,9 +55,22 @@ class _MainScreenState extends State<MainScreen> {
                 'Yes',
                 style: TextStyle(color: Colors.green),
               ),
-              onPressed: () {
+              onPressed: () async {
                 _locationService = location.Location();
-                startLocationUpdates();
+                PermissionStatus permissionStatus =
+                    await Permission.location.request();
+                PermissionStatus notificationStatus =
+                    await Permission.notification.request();
+                if (permissionStatus != PermissionStatus.granted) {
+                  ToastMessage.showToast("Allow location Permission");
+                } else {
+                  startLocationUpdates();
+                }
+                if (notificationStatus != PermissionStatus.granted) {
+                  ToastMessage.showToast("Allow notification Permission");
+                } else {
+                  _getNotification();
+                }
                 _getNotification();
 
                 Navigator.of(context).pop();
